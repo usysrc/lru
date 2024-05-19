@@ -22,14 +22,14 @@ type cacheEntry struct {
 	Time  time.Time
 }
 
-func NewCache(ttl time.Duration) *Cache {
+func NewCache(ttl time.Duration, capacity int) *Cache {
 	return &Cache{
 		mutex:      sync.Mutex{},
 		list:       list.New(),
 		entries:    make(map[any]*list.Element),
 		cacheTimer: time.Duration(1) * time.Second,
 		ttl:        ttl,
-		capacity:   10,
+		capacity:   capacity,
 		count:      0,
 	}
 }

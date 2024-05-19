@@ -7,7 +7,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	c := NewCache(time.Second * 1)
+	c := NewCache(time.Second*1, 100)
 	go c.EvictExpiredItems()
 	c.Put("foo", "bar")
 	if _, ok := c.Get("foo"); !ok {
@@ -25,7 +25,7 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheCapacity(t *testing.T) {
-	c := NewCache(time.Second * 100)
+	c := NewCache(time.Second*100, 10)
 	go c.EvictExpiredItems()
 	for i := 0; i < 10; i++ {
 		time.Sleep(time.Millisecond * 100)
