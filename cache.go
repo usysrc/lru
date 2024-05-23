@@ -7,7 +7,7 @@ import (
 )
 
 type Cache struct {
-	mutex      sync.Mutex
+	mutex      sync.RWMutex
 	list       *list.List
 	entries    map[any]*list.Element
 	cacheTimer time.Duration
@@ -24,7 +24,7 @@ type cacheEntry struct {
 
 func NewCache(ttl time.Duration, capacity int) *Cache {
 	return &Cache{
-		mutex:      sync.Mutex{},
+		mutex:      sync.RWMutex{},
 		list:       list.New(),
 		entries:    make(map[any]*list.Element),
 		cacheTimer: time.Duration(1) * time.Second,
@@ -34,24 +34,30 @@ func NewCache(ttl time.Duration, capacity int) *Cache {
 	}
 }
 
+// EvictExpiredItems evicts expired items from the cache
+// should be called in a goroutine
 func (c *Cache) EvictExpiredItems() {
 	for {
 		time.Sleep(c.cacheTimer)
 		now := time.Now()
 		c.mutex.Lock()
-		for e := c.list.Front(); e != nil; e = e.Next() {
+		for e := c.list.Back(); e != nil; e = e.Prev() {
 			entry := e.Value.(cacheEntry)
 			if now.Sub(entry.Time) > c.ttl {
 				c.list.Remove(e)
 				delete(c.entries, entry.Key)
 				c.count--
+			} else {
+				break
 			}
+
 		}
 
 		c.mutex.Unlock()
 	}
 }
 
+// Put adds an item to the cache
 func (c *Cache) Put(key, value any) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -80,9 +86,10 @@ func (c *Cache) Put(key, value any) {
 	}
 }
 
+// Get returns an item from the cache
 func (c *Cache) Get(key any) (any, bool) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
 	if val, ok := c.entries[key]; ok {
 		c.list.MoveToFront(val)
 		return val.Value.(cacheEntry).Value, true
