@@ -50,7 +50,6 @@ func (c *Cache) EvictExpiredItems() {
 			} else {
 				break
 			}
-
 		}
 
 		c.mutex.Unlock()
@@ -61,6 +60,7 @@ func (c *Cache) EvictExpiredItems() {
 func (c *Cache) Put(key, value any) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+
 	if val, ok := c.entries[key]; ok {
 		c.list.MoveToFront(val)
 		c.list.Front().Value = cacheEntry{
@@ -68,22 +68,22 @@ func (c *Cache) Put(key, value any) {
 			Value: value,
 			Time:  time.Now(),
 		}
-	} else {
-		c.entries[key] = c.list.PushFront(cacheEntry{
-			Key:   key,
-			Value: value,
-			Time:  time.Now(),
-		})
-		if c.count >= c.capacity {
-			entry := c.list.Back()
-			if entry != nil {
-				delete(c.entries, entry.Value.(cacheEntry).Key)
-				c.list.Remove(entry)
-			}
-
-		}
-		c.count++
+		return
 	}
+	c.entries[key] = c.list.PushFront(cacheEntry{
+		Key:   key,
+		Value: value,
+		Time:  time.Now(),
+	})
+	if c.count >= c.capacity {
+		entry := c.list.Back()
+		if entry != nil {
+			delete(c.entries, entry.Value.(cacheEntry).Key)
+			c.list.Remove(entry)
+		}
+
+	}
+	c.count++
 }
 
 // Get returns an item from the cache
