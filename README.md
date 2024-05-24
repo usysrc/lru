@@ -2,11 +2,11 @@
 
 [![Build and Tests](https://github.com/usysrc/lru/actions/workflows/go.yml/badge.svg)](https://github.com/usysrc/lru/actions/workflows/go.yml)
 
-This Go package implements a thread-safe Least Recently Used (LRU) cache with a time-to-live (TTL) feature. It allows storing, retrieving, and automatically evicting expired items from the cache.
+This Go package implements a Goroutine-safe Least Recently Used (LRU) cache with a time-to-live (TTL) feature. It allows storing, retrieving, and automatically evicting expired items from the cache.
 
 ## Features
 
-- Thread-safe LRU caching
+- Goroutine-safe LRU caching
 - Configurable TTL for cache entries
 - Automatic eviction of expired items
 
