@@ -18,10 +18,17 @@ func TestCache(t *testing.T) {
 			t.Error("value not found")
 		}
 	}
+	c.Put("foo", "bar-updated")
+	if val, ok := c.Get("foo"); ok {
+		if val != "bar-updated" {
+			t.Error("value not updated")
+		}
+	}
 	time.Sleep(time.Second * 10)
 	if _, ok := c.Get("foo"); ok {
 		t.Error("key found, expected to be not found")
 	}
+
 }
 
 func TestCacheCapacity(t *testing.T) {
