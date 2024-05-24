@@ -47,8 +47,6 @@ func (c *Cache) EvictExpiredItems() {
 				c.list.Remove(e)
 				delete(c.entries, entry.Key)
 				c.count--
-			} else {
-				break
 			}
 		}
 
